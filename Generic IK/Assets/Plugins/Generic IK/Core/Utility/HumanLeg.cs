@@ -20,12 +20,13 @@ namespace Generics.Dynamics
         [Header("General")]
         [Tooltip("Used only if Auto-building the chain is wished through the HumanLeg.AutoBuild() call")]
         public HumanLegs LegType;
+
         public Core.Chain LegChain;
 
 
-        [Header("Terrain Adjustment")]
-        public float HealHeight = 0.11f;
+        [Header("Terrain Adjustment")] public float HealHeight = 0.11f;
         public float RayLength = 0.5f;
+        public bool intersecting;
 
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace Generics.Dynamics
             RaycastHit hit;
             Ray ray = new Ray(EE.position, Vector3.down);
             bool intersect = Physics.Raycast(ray, out hit, RayLength, mask, QueryTriggerInteraction.Ignore);
+            intersecting = intersect;
 
 #if UNITY_EDITOR
             if (intersect)
@@ -80,7 +82,7 @@ namespace Generics.Dynamics
                 Vector3 rootUp = root.up;
                 Quaternion footRot = Quaternion.FromToRotation(hit.normal, rootUp);
 
-                //EE.rotation = EE.rotation * footRot;
+                EE.rotation = Quaternion.Inverse(footRot) * EE.rotation;
 
                 Vector3 IKPoint = hit.point + hit.normal * HealHeight;
                 LegChain.SetIKTarget(IKPoint);
@@ -88,28 +90,8 @@ namespace Generics.Dynamics
             else
             {
                 LegChain.Weight = 0f;
-                LegChain.SetIKTarget(EE.position);
+                //LegChain.SetIKTarget(EE.position);
             }
-        }
-
-        /// <summary>
-        /// find the height difference between 2 legs in their root's local space
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public static float operator -(HumanLeg self, HumanLeg other)
-        {
-            Transform selfRoot = self.LegChain.Joints[0].joint;
-            Transform otherRoot = other.LegChain.Joints[0].joint;
-
-            Vector3 x = selfRoot.position - self.LegChain.GetIKTarget();
-            Vector3 y = otherRoot.position - other.LegChain.GetIKTarget();
-
-            float dotX = Vector3.Dot(selfRoot.rotation * Vector3.down, x);
-            float dotY = Vector3.Dot(otherRoot.rotation * Vector3.down, y);
-
-            return Mathf.Abs(dotX) - Mathf.Abs(dotY);
         }
     }
 }

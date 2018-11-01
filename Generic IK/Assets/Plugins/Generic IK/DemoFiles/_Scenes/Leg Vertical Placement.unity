@@ -218,7 +218,7 @@ Prefab:
     - target: {fileID: 11400000, guid: 49a0e923d39ec3c4c8bb97699e2f2903, type: 2}
       propertyPath: m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1904943970}
     - target: {fileID: 100004, guid: 49a0e923d39ec3c4c8bb97699e2f2903, type: 2}
       propertyPath: m_Name
       value: camera
@@ -791,7 +791,7 @@ Prefab:
     - target: {fileID: 114000013261224302, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
       propertyPath: WalkMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 136000010632685792, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
@@ -1023,7 +1023,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
   AutoBuildChain: 1
-  RootAdjSpeed: 7
+  RootAdjSpeed: 8
   LayerMask:
     serializedVersion: 2
     m_Bits: 1
@@ -1036,6 +1036,7 @@ MonoBehaviour:
       Joints: []
     HealHeight: 0.1
     RayLength: 0.3
+    intersecting: 0
   Left:
     LegType: 5
     LegChain:
@@ -1045,7 +1046,12 @@ MonoBehaviour:
       Joints: []
     HealHeight: 0.1
     RayLength: 0.3
-  test: {fileID: 406466196}
+    intersecting: 0
+--- !u!4 &1904943970 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0,
+    type: 2}
+  m_PrefabInternal: {fileID: 883371466}
 --- !u!1001 &2116710984
 Prefab:
   m_ObjectHideFlags: 0

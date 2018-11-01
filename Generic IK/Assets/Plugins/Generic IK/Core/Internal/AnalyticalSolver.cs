@@ -78,6 +78,10 @@ namespace Generics.Dynamics
             Process(chain, Epsilon);
         }
 
+        /// <summary>
+        /// Process a human leg chain
+        /// </summary>
+        /// <param name="leg"></param>
         public static void Process(HumanLeg leg)
         {
             Process(leg.LegChain);
