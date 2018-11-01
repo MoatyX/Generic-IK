@@ -70,20 +70,6 @@ namespace Generics.Dynamics
         }
 
         /// <summary>
-        /// Linearly Interpolate 2 Vectors
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="weight"></param>
-        /// <returns></returns>
-        public static Vector3 Interpolate(Vector3 @from, Vector3 to, float weight)
-        {
-            weight = Mathf.Clamp(weight, 0f, 1f);
-            Vector3 _local = new Vector3((1 - weight) * @from.x + weight * to.x, (1 - weight) * @from.y + weight * to.y, (1 - weight) * @from.z + weight * to.z);
-            return _local;
-        }
-
-        /// <summary>
         /// The angle between 2 vectors
         /// </summary>
         /// <param name="v0"></param>
@@ -146,18 +132,6 @@ namespace Generics.Dynamics
         }
 
         /// <summary>
-        /// Creates a rotation which will always be perpendicular to the _normal and parallel to the surface
-        /// </summary>
-        /// <param name="normal"></param>
-        /// <returns></returns>
-        public static Quaternion RotationLookAt(Vector3 normal)
-        {
-            Quaternion _local = Quaternion.identity;
-            _local = Quaternion.LookRotation(-normal);
-            return _local;
-        }
-
-        /// <summary>
         /// Get the axis of self to target
         /// coordination system independent
         /// </summary>
@@ -191,8 +165,8 @@ namespace Generics.Dynamics
         /// <returns></returns>
         public static Vector3 GetConeNextPoint(Core.Joint joint, Vector3 obj)
         {
-            //this algorithm is not as accurate as an optimisation partial-differential problem, but its simple and strightforwrd.
-            //accuracy doesnt matter in this case
+            //this algorithm is not as accurate as an optimization partial-differential problem, but its simple and straightforward.
+            //accuracy doesn't matter in this case
 
             if (ConeBounded(joint, obj)) return obj;
 
