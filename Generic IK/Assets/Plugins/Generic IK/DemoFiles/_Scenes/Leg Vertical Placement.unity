@@ -442,8 +442,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 406466192}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000002861023, y: 0.141, z: 0}
-  m_LocalScale: {x: 1, y: 0.1, z: 1}
+  m_LocalPosition: {x: 0, y: -0.025, z: 0}
+  m_LocalScale: {x: 1, y: 0.05, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -461,7 +461,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.179
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1045,6 +1045,7 @@ MonoBehaviour:
       Joints: []
     HealHeight: 0.1
     RayLength: 0.3
+  test: {fileID: 406466196}
 --- !u!1001 &2116710984
 Prefab:
   m_ObjectHideFlags: 0
