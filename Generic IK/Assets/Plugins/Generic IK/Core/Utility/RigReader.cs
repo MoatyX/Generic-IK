@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Generics.Dynamics
 {
@@ -94,16 +95,16 @@ namespace Generics.Dynamics
         }
         public Spine spine;
 
-        public Core.Joint h_root { get; private set; }
-        public Core.Joint h_head { get; private set; }
+        public Core.Joint Root { get; private set; }
+        public Core.Joint Head { get; private set; }
 
         /// <summary>
         /// Assign the transforms from the animator's avatar;
         /// </summary>
         private void ReadHumanoidRig()
         {
-            h_root = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Hips) };
-            h_head = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Head) };
+            Root = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Hips) };
+            Head = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Head) };
 
             spine.spine = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Spine) };
             spine.chest = new Core.Joint { joint = animator.GetBoneTransform(HumanBodyBones.Chest) };
@@ -128,11 +129,43 @@ namespace Generics.Dynamics
 
         }
 
+        public Core.Chain BuildChain(HumanPart chain)
+        {
+            switch (chain)
+            {
+                case HumanPart.Head:
+                    Core.Chain head = new Core.Chain();
+                    head.Joints.Add(Head);
+                    return head;
+                case HumanPart.RightArm:
+                    return RightArmChain();
+                case HumanPart.LeftArm:
+                    return LeftArmChain();
+                case HumanPart.RightLeg:
+                    return RightLegChain();
+                case HumanPart.LeftLeg:
+                    return LeftLegChain();
+                case HumanPart.Root:
+                    Core.Chain root = new Core.Chain();
+                    root.Joints.Add(Root);
+                    return root;
+            }
+
+            return null;
+        }
+
+        public Core.Chain BuildChain(HumanLeg.HumanLegs leg)
+        {
+            HumanPart part = (HumanPart) leg;
+            return BuildChain(part);
+        }
+
+
         /// <summary>
         /// Build the right arm IK chain
         /// </summary>
         /// <returns></returns>
-        public Core.Chain RightArmChain()
+        private Core.Chain RightArmChain()
         {
             if (!IsReady()) return null;
             if (rigType != RigType.Humanoid) return null;
@@ -152,7 +185,7 @@ namespace Generics.Dynamics
         /// Build the left arm IK chain
         /// </summary>
         /// <returns></returns>
-        public Core.Chain LeftArmChain()
+        private Core.Chain LeftArmChain()
         {
             if (!IsReady()) return null;
             if (rigType != RigType.Humanoid) return null;
@@ -172,7 +205,7 @@ namespace Generics.Dynamics
         /// Build the right leg chain
         /// </summary>
         /// <returns></returns>
-        public Core.Chain RightLegChain()
+        private Core.Chain RightLegChain()
         {
             if (!IsReady()) return null;
             if (rigType != RigType.Humanoid) return null;
@@ -191,7 +224,7 @@ namespace Generics.Dynamics
         /// Build the right leg chain
         /// </summary>
         /// <returns></returns>
-        public Core.Chain LeftLegChain()
+        private Core.Chain LeftLegChain()
         {
             if (!IsReady()) return null;
             if (rigType != RigType.Humanoid) return null;

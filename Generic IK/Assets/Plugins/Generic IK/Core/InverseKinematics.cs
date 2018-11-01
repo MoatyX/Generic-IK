@@ -64,11 +64,11 @@ namespace Generics.Dynamics
 
         public void BuildRig()
         {
-            rArm = rigReader.RightArmChain();
-            lArm = rigReader.LeftArmChain();
+            rArm = rigReader.BuildChain(HumanPart.RightArm);
+            lArm = rigReader.BuildChain(HumanPart.LeftArm);
 
-            rLeg = rigReader.RightLegChain();
-            lLeg = rigReader.LeftLegChain();
+            rLeg = rigReader.BuildChain(HumanPart.RightLeg);
+            lLeg = rigReader.BuildChain(HumanPart.LeftLeg);
         }
     }
 }
