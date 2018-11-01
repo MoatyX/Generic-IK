@@ -7,6 +7,8 @@ namespace Generics.Dynamics
     /// </summary>
     public static class AnalyticalSolver
     {
+        private const float Eps = 0.01f;
+
         /// <summary>
         /// Process the chain through the Cosine Rule
         /// </summary>
@@ -29,22 +31,20 @@ namespace Generics.Dynamics
             Vector3 CB = Vector3.Normalize(B.joint.position - C.joint.position);
             Vector3 TA = A.joint.position - T;
 
-            float eps = 0.01f;
-            float lab = A.length;
-            float lcb = B.length;
-            float lat = GenericMath.Clamp(TA.magnitude, eps, lab + lcb - eps);
+            float l_ab = A.length;
+            float l_cb = B.length;
+            float l_at = GenericMath.Clamp(TA.magnitude, Eps, l_ab + l_cb - Eps);
 
-            float ba_bc_0 = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-AB, -CB), -1f, 1f));
-            float ba_bc_1 = Mathf.Acos(Mathf.Clamp((lat * lat - lab * lab - lcb * lcb) / (-2 * lab * lcb), -1, 1));
+            float kneeCurrent = GenericMath.VectorsAngle(AB, CB);
+            float kneeTarget = GenericMath.CosineRule(A.length, B.length, l_at);
 
             Vector3 axis = Vector3.Normalize(Vector3.Cross(AC, -AB));
-            Quaternion q1 = Quaternion.AngleAxis((ba_bc_1 - ba_bc_0) * Mathf.Rad2Deg, Quaternion.Inverse(B.joint.rotation) * axis);
-
+            Quaternion q1 = Quaternion.AngleAxis(kneeTarget - kneeCurrent, Quaternion.Inverse(B.joint.rotation) * axis);
 
             B.joint.localRotation = B.joint.localRotation * Quaternion.Inverse(q1);
 
-            Quaternion q2 = Quaternion.FromToRotation(A.joint.position - C.joint.position, A.joint.position - T);
-            A.joint.rotation = A.joint.rotation * Quaternion.Inverse(q2);
+            Quaternion q2 = Quaternion.FromToRotation(A.joint.position - C.joint.position, TA);
+            A.joint.rotation = q2 * A.joint.rotation;
         }
     }
 }
