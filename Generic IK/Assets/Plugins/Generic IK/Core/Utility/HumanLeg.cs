@@ -45,21 +45,22 @@ namespace Generics.Dynamics
             switch (LegType)
             {
                 case HumanLegs.RightLeg:
-                    LegChain = rigReader.BuildChain(LegType);
+                    var tempR = rigReader.BuildChain(LegType);
+                    LegChain.Joints = tempR.Joints;
                     break;
                 case HumanLegs.LeftLeg:
-                    LegChain = rigReader.BuildChain(LegType);
-                    break;
-                default:
+                    var tempL = rigReader.BuildChain(LegType);
+                    LegChain.Joints = tempL.Joints;
                     break;
             }
         }
 
         /// <summary>
         /// Cast rays to find pumps in the terrain and sets the IK target to the appropriate hit point.
-        /// (does not solve the IK, you need to process the chain in a solver-call separately)
+        /// (does not solve the IK, you need to Call a Solver separately)
+        /// (The AnalyticalSolver is suggested)
         /// </summary>
-        public void TerrainAdjustment(LayerMask mask)
+        public void TerrainAdjustment(LayerMask mask, Transform root)
         {
             Transform EE = LegChain.GetEndEffector();
             RaycastHit hit;
@@ -69,17 +70,17 @@ namespace Generics.Dynamics
 #if UNITY_EDITOR
             if (intersect)
             {
-                Debug.DrawLine(ray.origin, hit.point, Color.green);
+                Debug.DrawLine(ray.origin, hit.point + hit.normal * HealHeight, Color.green);
             }
 #endif
             if (intersect)
             {
                 LegChain.Weight = 1f;
 
-                Vector3 rootUp = LegChain.Joints[0].joint.up;
-                Quaternion footRot = Quaternion.FromToRotation(rootUp, hit.normal);
+                Vector3 rootUp = root.up;
+                Quaternion footRot = Quaternion.FromToRotation(hit.normal, rootUp);
 
-                EE.rotation = EE.rotation * footRot;
+                //EE.rotation = EE.rotation * footRot;
 
                 Vector3 IKPoint = hit.point + hit.normal * HealHeight;
                 LegChain.SetIKTarget(IKPoint);

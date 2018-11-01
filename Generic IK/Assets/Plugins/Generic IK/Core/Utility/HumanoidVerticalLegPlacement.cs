@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Generics.Dynamics
 {
@@ -8,15 +7,19 @@ namespace Generics.Dynamics
     /// </summary>
     public class HumanoidVerticalLegPlacement : MonoBehaviour
     {
-        [Header("Interface")] public Animator SourceAnimator;
+        [Header("Interface")]
+        public Animator SourceAnimator;
 
         [Tooltip("This uses the LegType parameter inside each Leg object and auto build it")]
         public bool AutoBuildChain = true;
 
+        public float RootAdjSpeed = 7;
         public LayerMask LayerMask = 0;
 
         public HumanLeg Right, Left;
         private Transform _root;
+        private Vector3 rootPos;
+        public Transform test;
 
         private void Start()
         {
@@ -37,6 +40,7 @@ namespace Generics.Dynamics
 
             RigReader rigReader = new RigReader(SourceAnimator);
             _root = rigReader.Root.joint;
+            rootPos = _root.position;
 
             if (AutoBuildChain)
             {
@@ -54,16 +58,29 @@ namespace Generics.Dynamics
 
         private void ProcessLegs()
         {
-            Right.TerrainAdjustment(LayerMask);
-            Left.TerrainAdjustment(LayerMask);
+            Right.TerrainAdjustment(LayerMask, _root);
+            Left.TerrainAdjustment(LayerMask, _root);
         }
 
         private void ProcessHips()
         {
+            float x = Right - Left;
+            float y = Left - Right;
+
+            float delta = x;
+            Vector3 hip = _root.position;
+            hip.y -= delta;
+            rootPos = Vector3.Lerp(rootPos, hip, Time.deltaTime * RootAdjSpeed);
+            _root.position = rootPos;
         }
 
         private void Solve()
         {
+            AnalyticalSolver.Process(Right);
+            AnalyticalSolver.Process(Left);
+            //Right.LegChain.GetEndEffector().rotation = Quaternion.Inverse(Quaternion.FromToRotation(test.up, _root.up)) * Right.LegChain.GetEndEffector().rotation;
+            Left.LegChain.GetEndEffector().rotation = Quaternion.Inverse(Quaternion.FromToRotation(test.up, _root.up)) * Left.LegChain.GetEndEffector().rotation;
+        
         }
     }
 }
