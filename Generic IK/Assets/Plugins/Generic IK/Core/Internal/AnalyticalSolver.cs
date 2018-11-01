@@ -19,63 +19,32 @@ namespace Generics.Dynamics
                 chain.InitiateJoints();
             }
 
-            Core.Joint A = chain.Joints[0]; //thigh
-            Core.Joint B = chain.Joints[1]; //knee
-            Core.Joint C = chain.Joints[2]; //foot
+            Core.Joint A = chain.Joints[0];
+            Core.Joint B = chain.Joints[1];
+            Core.Joint C = chain.Joints[2];
             Vector3 T = chain.GetIKTarget();
 
-            Vector3 TB = T - B.joint.position;
+            Vector3 AB = Vector3.Normalize(B.joint.position - A.joint.position);
+            Vector3 AC = Vector3.Normalize(C.joint.position - A.joint.position);
             Vector3 CB = Vector3.Normalize(B.joint.position - C.joint.position);
+            Vector3 TA = A.joint.position - T;
 
-            Vector3 BA = Vector3.Normalize(A.joint.position - B.joint.position);
-            Vector3 CA = Vector3.Normalize(A.joint.position - C.joint.position);
-            Vector3 TA = Vector3.Normalize(A.joint.position - T);
+            float eps = 0.01f;
+            float lab = A.length;
+            float lcb = B.length;
+            float lat = GenericMath.Clamp(TA.magnitude, eps, lab + lcb - eps);
 
-            //hip rotation (2-DOF rotation)
+            float ba_bc_0 = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-AB, -CB), -1f, 1f));
+            float ba_bc_1 = Mathf.Acos(Mathf.Clamp((lat * lat - lab * lab - lcb * lcb) / (-2 * lab * lcb), -1, 1));
 
-            //knee rotation (1-DOF rotation)
-            //Vector3 kneeAxis = GenericMath.TransformVector(Vector3.Cross(BA, CB), Quaternion.Inverse(B.joint.rotation));
-            //float kneeAngle = Vector3.Angle(GenericMath.TransformVector(B.localAxis, B.joint.rotation), TB.normalized);
-            Vector3 kneeAxis = GenericMath.TransformVector(Vector3.Cross(BA, CB), Quaternion.Inverse(B.joint.rotation));
-            float kneeCur = Vector3.Angle(BA, CB);
-            float kneeAngle = Vector3.Angle(GenericMath.TransformVector(B.localAxis, B.joint.rotation), TB.normalized) - 180f;
-            Quaternion knee = GenericMath.QuaternionFromAngleAxis(kneeAngle - kneeCur, kneeAxis);
+            Vector3 axis = Vector3.Normalize(Vector3.Cross(AC, -AB));
+            Quaternion q1 = Quaternion.AngleAxis((ba_bc_1 - ba_bc_0) * Mathf.Rad2Deg, Quaternion.Inverse(B.joint.rotation) * axis);
 
-            B.joint.rotation = GenericMath.ApplyQuaternion(B.joint.rotation, knee);
 
-            Quaternion thigh = Quaternion.FromToRotation(TA, Vector3.Normalize(A.joint.position - C.joint.position));
-            A.joint.rotation = A.joint.rotation * thigh;
+            B.joint.localRotation = B.joint.localRotation * Quaternion.Inverse(q1);
+
+            Quaternion q2 = Quaternion.FromToRotation(A.joint.position - C.joint.position, A.joint.position - T);
+            A.joint.rotation = A.joint.rotation * Quaternion.Inverse(q2);
         }
-
-        //private static void old(Core.Chain chain)
-        //{
-        //    Core.Joint A = chain.Joints[0];
-        //    Core.Joint B = chain.Joints[1];
-        //    Core.Joint C = chain.Joints[2];
-        //    Vector3 T = chain.GetIKTarget();
-
-        //    Vector3 BA = A.joint.position - B.joint.position;
-        //    Vector3 CA = C.joint.position - A.joint.position;
-        //    Vector3 CB = B.joint.position - C.joint.position;
-        //    Vector3 TB = B.joint.position - T;
-        //    Vector3 TA = A.joint.position - T;
-
-        //    float LT = GenericMath.Clamp(TA.magnitude, Epsilon, A.length + B.length - Epsilon);
-        //    float L1T = GenericMath.Clamp(TB.magnitude, Epsilon, TB.magnitude);
-
-        //    float alpha0 = Vector3.Angle(BA, CA);
-        //    float beta0 = Vector3.Angle(BA, CB);
-
-        //    float alpha1 = GenericMath.CosineRule(A.length, L1T, LT);
-        //    float beta1 = GenericMath.CosineRule(A.length, LT, L1T);
-
-        //    float alphaT = alpha1 - alpha0;
-        //    float betaT = beta0 - beta1;
-
-        //    Vector3 betaAxis = Vector3.Cross(BA, CB).normalized;
-
-        //    Debug.Log(betaAxis);
-        //    B.joint.rotation = Quaternion.AngleAxis(Vector3.Angle(B.joint.rotation * B.localAxis, TB), B.joint.rotation * betaAxis);
-        //}
     }
 }
