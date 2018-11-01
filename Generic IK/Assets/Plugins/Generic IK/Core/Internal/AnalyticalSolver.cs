@@ -37,14 +37,16 @@ namespace Generics.Dynamics
 
             float kneeCurrent = GenericMath.VectorsAngle(AB, CB);
             float kneeTarget = GenericMath.CosineRule(A.length, B.length, l_at);
+            float kneeDelta = kneeTarget - kneeCurrent;
 
-            Vector3 axis = Vector3.Normalize(Vector3.Cross(AC, -AB));
-            Quaternion q1 = Quaternion.AngleAxis(kneeTarget - kneeCurrent, Quaternion.Inverse(B.joint.rotation) * axis);
+            Vector3 axis = GenericMath.TransformVector(Vector3.Normalize(Vector3.Cross(AC, AB)),
+                Quaternion.Inverse(B.joint.rotation));
+            Quaternion q1 = Quaternion.AngleAxis(kneeDelta, axis);
 
-            B.joint.localRotation = B.joint.localRotation * Quaternion.Inverse(q1);
+            B.joint.rotation = GenericMath.ApplyQuaternion(B.joint.rotation, q1);
 
             Quaternion q2 = Quaternion.FromToRotation(A.joint.position - C.joint.position, TA);
-            A.joint.rotation = q2 * A.joint.rotation;
+            A.joint.rotation = GenericMath.ApplyQuaternion(q2, A.joint.rotation);
         }
     }
 }
