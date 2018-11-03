@@ -75,6 +75,7 @@ namespace Generics.Dynamics
 
         private void ProcessHips()
         {
+            //TODO: better pelvis adj
             float yRight = Right.LegChain.GetIKTarget().y;
             float yLeft = Left.LegChain.GetIKTarget().y;
             float min = Mathf.Min(yRight, yLeft);
