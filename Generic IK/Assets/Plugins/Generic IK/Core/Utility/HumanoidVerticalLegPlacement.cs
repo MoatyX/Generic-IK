@@ -9,6 +9,8 @@ namespace Generics.Dynamics
     {
         [Header("Interface")]
         public Animator SourceAnimator;
+        public float TimeTarget = 0.2f;
+        public Vector3 test;
 
         [Tooltip("This uses the LegType parameter inside each Leg object and auto build it")]
         public bool AutoBuildChain = true;
@@ -16,10 +18,11 @@ namespace Generics.Dynamics
         public float RootAdjSpeed = 7;
         public LayerMask LayerMask = 0;
 
-        public HumanLeg Right, Left;
+        public HumanLeg Right;
+        public HumanLeg Left;
         private Transform _root;
         private Vector3 rootPos;
-        private bool solve;
+        private bool solve = true;
 
         private void Start()
         {
@@ -51,11 +54,13 @@ namespace Generics.Dynamics
 
         private void LateUpdate()
         {
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(2))
             {
                 solve = !solve;
                 Debug.Log(solve);
             }
+
+            Time.timeScale = Input.GetMouseButton(1) ? TimeTarget : 1f;
 
             ProcessLegs();
             ProcessHips();
@@ -64,33 +69,26 @@ namespace Generics.Dynamics
 
         private void ProcessLegs()
         {
-            Right.TerrainAdjustment(LayerMask, _root);
-            Left.TerrainAdjustment(LayerMask, _root);
+            Right.TerrainAdjustment(LayerMask, transform);
+            Left.TerrainAdjustment(LayerMask, transform);
         }
 
         private void ProcessHips()
         {
-            Transform selfRoot = Right.LegChain.Joints[0].joint;
-            Transform otherRoot = Left.LegChain.Joints[0].joint;
-
-            Vector3 x = selfRoot.position - Right.LegChain.GetIKTarget();
-            Vector3 y = otherRoot.position - Left.LegChain.GetIKTarget();
-
-            float dotX = Mathf.Abs(Vector3.Dot(selfRoot.rotation * Vector3.down, x));
-            float dotY = Mathf.Abs(Vector3.Dot(otherRoot.rotation * Vector3.down, y));
-
-            float min = Mathf.Min(dotX, dotY);
-            float max = Mathf.Max(dotX, dotY);
-
+            float yRight = Right.LegChain.GetIKTarget().y;
+            float yLeft = Left.LegChain.GetIKTarget().y;
+            float min = Mathf.Min(yRight, yLeft);
+            float max = Mathf.Max(yRight, yLeft);
             float delta = max - min;
-            Vector3 hip = _root.position;
 
-            hip.y -= delta;
-            //rootPos = Vector3.Lerp(rootPos, hip, Time.deltaTime * RootAdjSpeed);
-            rootPos.y = Mathf.Lerp(rootPos.y, hip.y, Time.deltaTime * RootAdjSpeed);
+            rootPos.x = _root.position.x;
+            rootPos.y = Mathf.Lerp(rootPos.y, _root.position.y - delta, Time.deltaTime * RootAdjSpeed);
+            rootPos.z = _root.position.z;
 
-            if(solve)
-            _root.position = new Vector3(_root.position.x, rootPos.y, _root.position.z);
+            if (solve)
+            {
+                _root.position = rootPos;
+            }
         }
 
         private void Solve()
@@ -99,8 +97,31 @@ namespace Generics.Dynamics
 
             AnalyticalSolver.Process(Right);
             AnalyticalSolver.Process(Left);
-            //Right.LegChain.GetEndEffector().rotation = Quaternion.Inverse(Quaternion.FromToRotation(test.up, _root.up)) * Right.LegChain.GetEndEffector().rotation;
-            //Left.LegChain.GetEndEffector().rotation = Quaternion.Inverse(Quaternion.FromToRotation(test.up, _root.up)) * Left.LegChain.GetEndEffector().rotation;
         }
+
+        private void OnDrawGizmos()
+        {
+            if (Application.isPlaying == false) return;
+            
+            Gizmos.color = Color.green;
+            Vector3 ppos1 = Right.LegChain.GetIKTarget();
+            //ppos1.x = transform.position.x;
+            //ppos1.z = transform.position.z;
+            Vector3 ppos2 = Left.LegChain.GetIKTarget();
+            Gizmos.DrawWireSphere(ppos1, 0.06f);
+            Gizmos.DrawWireSphere(ppos2, 0.06f);
+
+            Gizmos.color = Color.red;
+            var pos1 = Right.LegChain.GetEndEffector().position;
+            //pos1.x = transform.position.x;
+            //pos1.z = transform.position.z;
+            //Gizmos.DrawSphere(pos1, 0.1f);
+
+            Gizmos.color = Color.blue;
+            //Gizmos.DrawLine(ppos1, pos1);
+
+        }
+
+
     }
 }

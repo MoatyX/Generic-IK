@@ -244,8 +244,8 @@ namespace Generics.Dynamics
             public Quaternion SetEERotation(Quaternion target, bool relativeRot = false, bool applyLimits = false)
             {
                 Joint ee = Joints[Joints.Count - 1];
-                ee.rot = relativeRot ? ee.rot * target : target;
-                ee.ApplyVirtualMap(false, true);
+                ee.joint.rotation = relativeRot ? ee.joint.rotation * target : target;
+                //ee.ApplyVirtualMap(false, true);
 
                 if (applyLimits) ee.ApplyRestrictions();
                 return ee.rot;

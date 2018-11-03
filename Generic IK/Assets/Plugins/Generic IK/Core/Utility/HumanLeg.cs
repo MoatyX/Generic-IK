@@ -26,8 +26,10 @@ namespace Generics.Dynamics
 
         [Header("Terrain Adjustment")] public float HealHeight = 0.11f;
         public float RayLength = 0.5f;
+        public float MaxStep = 0.5f;
         public bool intersecting;
 
+        private Quaternion startRot;
 
         /// <summary>
         /// Automatically build the chain
@@ -54,6 +56,10 @@ namespace Generics.Dynamics
                     LegChain.Joints = tempL.Joints;
                     break;
             }
+
+            LegChain.InitiateJoints();
+            LegChain.Weight = 1;
+            startRot = LegChain.GetEndEffector().rotation;
         }
 
         /// <summary>
@@ -67,30 +73,34 @@ namespace Generics.Dynamics
             RaycastHit hit;
             Ray ray = new Ray(EE.position, Vector3.down);
             bool intersect = Physics.Raycast(ray, out hit, RayLength, mask, QueryTriggerInteraction.Ignore);
-            intersecting = intersect;
 
 #if UNITY_EDITOR
             if (intersect)
             {
-                Debug.DrawLine(ray.origin, hit.point + hit.normal * HealHeight, Color.green);
+                Debug.DrawLine(ray.origin, hit.point, Color.green);
             }
 #endif
             if (intersect)
             {
-                LegChain.Weight = 1f;
-
                 Vector3 rootUp = root.up;
-                Quaternion footRot = Quaternion.FromToRotation(hit.normal, rootUp);
+                Vector3 chainRoot = LegChain.Joints[0].joint.position;
 
-                EE.rotation = Quaternion.Inverse(footRot) * EE.rotation;
+                float footHeight = root.position.y - EE.position.y;
+                float footFromGround = hit.point.y - root.position.y;
+                intersecting = MaxStep > footFromGround;
 
-                Vector3 IKPoint = hit.point + hit.normal * HealHeight;
+                float offsetTarget = Mathf.Clamp(footFromGround, -MaxStep, MaxStep) + HealHeight;
+                float currentMaxOffset = Mathf.Clamp(MaxStep - footHeight, 0f, MaxStep);
+                float IK = Mathf.Clamp(offsetTarget, -currentMaxOffset, offsetTarget);
+
+                Vector3 IKPoint = EE.position + rootUp * IK;
                 LegChain.SetIKTarget(IKPoint);
+
+                //TODO: rotate foot
             }
             else
             {
-                LegChain.Weight = 0f;
-                //LegChain.SetIKTarget(EE.position);
+                LegChain.SetIKTarget(EE.position);
             }
         }
     }
