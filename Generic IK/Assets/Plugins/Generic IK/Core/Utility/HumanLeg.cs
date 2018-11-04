@@ -29,7 +29,9 @@ namespace Generics.Dynamics
         public float MaxStep = 0.5f;
         public bool intersecting;
 
-        private Quaternion startRot;
+        private Quaternion _EEStartRot;
+        private Quaternion _EETargetRot;
+        private Transform EE;
 
         /// <summary>
         /// Automatically build the chain
@@ -59,7 +61,9 @@ namespace Generics.Dynamics
 
             LegChain.InitiateJoints();
             LegChain.Weight = 1;
-            startRot = LegChain.GetEndEffector().rotation;
+
+            _EEStartRot = LegChain.GetEndEffector().rotation;
+            EE = LegChain.GetEndEffector();
         }
 
         /// <summary>
@@ -69,7 +73,6 @@ namespace Generics.Dynamics
         /// </summary>
         public void TerrainAdjustment(LayerMask mask, Transform root)
         {
-            Transform EE = LegChain.GetEndEffector();
             RaycastHit hit;
             Ray ray = new Ray(EE.position, Vector3.down);
             bool intersect = Physics.Raycast(ray, out hit, RayLength, mask, QueryTriggerInteraction.Ignore);
@@ -83,7 +86,7 @@ namespace Generics.Dynamics
             if (intersect)
             {
                 Vector3 rootUp = root.up;
-                Vector3 chainRoot = LegChain.Joints[0].joint.position;
+                var B = LegChain.Joints[1];
 
                 float footHeight = root.position.y - EE.position.y;
                 float footFromGround = hit.point.y - root.position.y;
@@ -97,11 +100,17 @@ namespace Generics.Dynamics
                 LegChain.SetIKTarget(IKPoint);
 
                 //TODO: rotate foot
+                _EETargetRot = Quaternion.FromToRotation(hit.normal, rootUp);
             }
             else
             {
                 LegChain.SetIKTarget(EE.position);
             }
+        }
+
+        public void RotateFoot()
+        {
+            EE.rotation = Quaternion.Inverse(_EETargetRot) * _EEStartRot;
         }
     }
 }

@@ -98,6 +98,9 @@ namespace Generics.Dynamics
 
             AnalyticalSolver.Process(Right);
             AnalyticalSolver.Process(Left);
+
+            Right.RotateFoot();
+            Left.RotateFoot();
         }
 
         private void OnDrawGizmos()
@@ -109,8 +112,8 @@ namespace Generics.Dynamics
             //ppos1.x = transform.position.x;
             //ppos1.z = transform.position.z;
             Vector3 ppos2 = Left.LegChain.GetIKTarget();
-            Gizmos.DrawWireSphere(ppos1, 0.06f);
-            Gizmos.DrawWireSphere(ppos2, 0.06f);
+            //Gizmos.DrawWireSphere(ppos1, 0.06f);
+            //Gizmos.DrawWireSphere(ppos2, 0.06f);
 
             Gizmos.color = Color.red;
             var pos1 = Right.LegChain.GetEndEffector().position;
