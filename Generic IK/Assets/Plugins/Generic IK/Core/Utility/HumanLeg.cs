@@ -25,11 +25,10 @@ namespace Generics.Dynamics
 
 
         [Header("Terrain Adjustment")] public float HealHeight = 0.11f;
-        public float RayLength = 0.5f;
         public float MaxStep = 0.5f;
         public bool intersecting;
 
-        private Quaternion _EEStartRot;
+        private Quaternion _EEAnimRot;
         private Quaternion _EETargetRot;
         private Transform EE;
 
@@ -62,7 +61,7 @@ namespace Generics.Dynamics
             LegChain.InitiateJoints();
             LegChain.Weight = 1;
 
-            _EEStartRot = LegChain.GetEndEffector().rotation;
+            _EEAnimRot = LegChain.GetEndEffector().rotation;
             EE = LegChain.GetEndEffector();
         }
 
@@ -75,7 +74,7 @@ namespace Generics.Dynamics
         {
             RaycastHit hit;
             Ray ray = new Ray(EE.position, Vector3.down);
-            bool intersect = Physics.Raycast(ray, out hit, RayLength, mask, QueryTriggerInteraction.Ignore);
+            bool intersect = Physics.Raycast(ray, out hit, MaxStep, mask, QueryTriggerInteraction.Ignore);
 
 #if UNITY_EDITOR
             if (intersect)
@@ -101,6 +100,7 @@ namespace Generics.Dynamics
 
                 //TODO: rotate foot
                 _EETargetRot = Quaternion.FromToRotation(hit.normal, rootUp);
+                _EEAnimRot = EE.rotation;
             }
             else
             {
@@ -108,9 +108,13 @@ namespace Generics.Dynamics
             }
         }
 
+
+        /// <summary>
+        /// Rotate the ankle
+        /// </summary>
         public void RotateFoot()
         {
-            EE.rotation = Quaternion.Inverse(_EETargetRot) * _EEStartRot;
+            EE.rotation = Quaternion.Inverse(_EETargetRot) * _EEAnimRot;
         }
     }
 }

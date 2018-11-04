@@ -533,7 +533,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.149
+      value: 0.164
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1110,12 +1110,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
   TimeTarget: 0.2
-  test: {x: 0, y: 0, z: 0}
   AutoBuildChain: 1
   RootAdjSpeed: 10
   LayerMask:
     serializedVersion: 2
     m_Bits: 1
+  Root: {fileID: 0}
   Right:
     LegType: 4
     LegChain:

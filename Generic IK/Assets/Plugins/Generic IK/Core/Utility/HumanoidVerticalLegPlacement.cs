@@ -10,7 +10,6 @@ namespace Generics.Dynamics
         [Header("Interface")]
         public Animator SourceAnimator;
         public float TimeTarget = 0.2f;
-        public Vector3 test;
 
         [Tooltip("This uses the LegType parameter inside each Leg object and auto build it")]
         public bool AutoBuildChain = true;
@@ -18,11 +17,11 @@ namespace Generics.Dynamics
         public float RootAdjSpeed = 7;
         public LayerMask LayerMask = 0;
 
+        public Transform Root;
         public HumanLeg Right;
         public HumanLeg Left;
-        private Transform _root;
+
         private Vector3 rootPos;
-        private bool solve = true;
 
         private void Start()
         {
@@ -42,8 +41,8 @@ namespace Generics.Dynamics
             }
 
             RigReader rigReader = new RigReader(SourceAnimator);
-            _root = rigReader.Root.joint;
-            rootPos = _root.position;
+            Root = rigReader.Root.joint;
+            rootPos = Root.position;
 
             if (AutoBuildChain)
             {
@@ -54,14 +53,6 @@ namespace Generics.Dynamics
 
         private void LateUpdate()
         {
-            if (Input.GetMouseButtonDown(2))
-            {
-                solve = !solve;
-                Debug.Log(solve);
-            }
-
-            Time.timeScale = Input.GetMouseButton(1) ? TimeTarget : 1f;
-
             ProcessLegs();
             ProcessHips();
             Solve();
@@ -81,21 +72,18 @@ namespace Generics.Dynamics
             float min = Mathf.Min(yRight, yLeft);
             float max = Mathf.Max(yRight, yLeft);
             float delta = max - min;
+            float extraDelta = Right.LegChain.GetEndEffector().position.y - Right.LegChain.GetIKTarget().y;
+            extraDelta = 0f;
 
-            rootPos.x = _root.position.x;
-            rootPos.y = Mathf.Lerp(rootPos.y, _root.position.y - delta, Time.deltaTime * RootAdjSpeed);
-            rootPos.z = _root.position.z;
+            rootPos.x = Root.position.x;
+            rootPos.y = Mathf.Lerp(rootPos.y, Root.position.y - (delta + extraDelta), Time.deltaTime * RootAdjSpeed);
+            rootPos.z = Root.position.z;
 
-            if (solve)
-            {
-                _root.position = rootPos;
-            }
+            Root.position = rootPos;
         }
 
         private void Solve()
         {
-            if(!solve) return;
-
             AnalyticalSolver.Process(Right);
             AnalyticalSolver.Process(Left);
 
@@ -109,21 +97,9 @@ namespace Generics.Dynamics
             
             Gizmos.color = Color.green;
             Vector3 ppos1 = Right.LegChain.GetIKTarget();
-            //ppos1.x = transform.position.x;
-            //ppos1.z = transform.position.z;
             Vector3 ppos2 = Left.LegChain.GetIKTarget();
-            //Gizmos.DrawWireSphere(ppos1, 0.06f);
-            //Gizmos.DrawWireSphere(ppos2, 0.06f);
-
-            Gizmos.color = Color.red;
-            var pos1 = Right.LegChain.GetEndEffector().position;
-            //pos1.x = transform.position.x;
-            //pos1.z = transform.position.z;
-            //Gizmos.DrawSphere(pos1, 0.1f);
-
-            Gizmos.color = Color.blue;
-            //Gizmos.DrawLine(ppos1, pos1);
-
+            Gizmos.DrawWireSphere(ppos1, 0.06f);
+            Gizmos.DrawWireSphere(ppos2, 0.06f);
         }
 
 
