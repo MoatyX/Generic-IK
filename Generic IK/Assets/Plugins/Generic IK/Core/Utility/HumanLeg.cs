@@ -108,7 +108,7 @@ namespace Generics.Dynamics
 #if UNITY_EDITOR
             if (intersect)
             {
-                Debug.DrawLine(ray.origin, hit.point, Color.green); //enable for debug purposes
+                //Debug.DrawLine(ray.origin, hit.point, Color.green); //enable for debug purposes
             }
 #endif
             if (intersect)

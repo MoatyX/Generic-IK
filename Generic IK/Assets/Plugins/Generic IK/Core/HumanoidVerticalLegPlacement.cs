@@ -91,8 +91,8 @@ namespace Generics.Dynamics
 
         private void Solve()
         {
-            AnalyticalSolver.Process(Right);
-            AnalyticalSolver.Process(Left);
+            AnalyticalSolver.Process(Right.Chain);
+            AnalyticalSolver.Process(Left.Chain);
 
             Right.RotateAnkle();
             Left.RotateAnkle();

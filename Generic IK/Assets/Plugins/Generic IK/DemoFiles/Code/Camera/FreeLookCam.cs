@@ -52,7 +52,7 @@ namespace UnityStandardAssets.Cameras
                 Cursor.visible = !m_LockCursor;
             }
 
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if(Input.GetKeyDown(KeyCode.Escape) && !m_LockCursor)
             {
                 freeze = true;
                 Cursor.lockState = CursorLockMode.None;

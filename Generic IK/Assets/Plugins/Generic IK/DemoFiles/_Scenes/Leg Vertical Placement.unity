@@ -227,6 +227,10 @@ Prefab:
       propertyPath: m_AutoTargetPlayer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 49a0e923d39ec3c4c8bb97699e2f2903, type: 2}
+      propertyPath: m_LockCursor
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 49a0e923d39ec3c4c8bb97699e2f2903, type: 2}
   m_IsPrefabAsset: 0
@@ -452,7 +456,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &406466193
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -513,13 +517,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 406466192}
-  m_LocalRotation: {x: -0.2588194, y: -0, z: -0, w: 0.9659258}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.149, z: 0}
   m_LocalScale: {x: 1, y: 0.05, z: 1.5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: -30.000002, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &883371466
 Prefab:
   m_ObjectHideFlags: 0
@@ -533,7 +537,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1109,7 +1113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
-  RootAdjSpeed: 10
+  RootAdjSpeed: 7
   Root: {fileID: 0}
   LayerMask:
     serializedVersion: 2
