@@ -873,7 +873,7 @@ Prefab:
     - target: {fileID: 114000013673731324, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
       propertyPath: debugMode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 136000010632685792, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
@@ -1109,7 +1109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
-  TimeTarget: 0.2
+  HealHeight: 0
   AutoBuildChain: 1
   RootAdjSpeed: 10
   LayerMask:
@@ -1123,10 +1123,8 @@ MonoBehaviour:
       Weight: 1
       Iterations: 2
       Joints: []
-    HealHeight: 0
-    RayLength: 1
-    MaxStep: 0.5
-    intersecting: 0
+    FootOffset: 0
+    MaxStep: 0.6
   Left:
     LegType: 5
     LegChain:
@@ -1134,10 +1132,8 @@ MonoBehaviour:
       Weight: 1
       Iterations: 2
       Joints: []
-    HealHeight: 0
-    RayLength: 1
-    MaxStep: 0.5
-    intersecting: 0
+    FootOffset: 0
+    MaxStep: 0.6
 --- !u!4 &1904943970 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0,

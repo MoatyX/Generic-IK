@@ -24,9 +24,9 @@ namespace Generics.Dynamics
         public Core.Chain LegChain;
 
 
-        [Header("Terrain Adjustment")] public float HealHeight = 0.11f;
-        public float MaxStep = 0.5f;
-        public bool intersecting;
+        [Header("Terrain Adjustment")]
+        public float FootOffset = 0f;
+        public float MaxStepHeight = 0.6f;
 
         private Quaternion _EEAnimRot;
         private Quaternion _EETargetRot;
@@ -74,31 +74,29 @@ namespace Generics.Dynamics
         {
             RaycastHit hit;
             Ray ray = new Ray(EE.position, Vector3.down);
-            bool intersect = Physics.Raycast(ray, out hit, MaxStep, mask, QueryTriggerInteraction.Ignore);
+            bool intersect = Physics.Raycast(ray, out hit, MaxStepHeight, mask, QueryTriggerInteraction.Ignore);
 
 #if UNITY_EDITOR
             if (intersect)
             {
-                Debug.DrawLine(ray.origin, hit.point, Color.green);
+                Debug.DrawLine(ray.origin, hit.point, Color.green);   //enable for debug purposes
             }
 #endif
             if (intersect)
             {
                 Vector3 rootUp = root.up;
-                var B = LegChain.Joints[1];
 
                 float footHeight = root.position.y - EE.position.y;
                 float footFromGround = hit.point.y - root.position.y;
-                intersecting = MaxStep > footFromGround;
 
-                float offsetTarget = Mathf.Clamp(footFromGround, -MaxStep, MaxStep) + HealHeight;
-                float currentMaxOffset = Mathf.Clamp(MaxStep - footHeight, 0f, MaxStep);
+                float offsetTarget = Mathf.Clamp(footFromGround, -MaxStepHeight, MaxStepHeight) + FootOffset;
+                float currentMaxOffset = Mathf.Clamp(MaxStepHeight - footHeight, 0f, MaxStepHeight);
                 float IK = Mathf.Clamp(offsetTarget, -currentMaxOffset, offsetTarget);
 
                 Vector3 IKPoint = EE.position + rootUp * IK;
                 LegChain.SetIKTarget(IKPoint);
 
-                //TODO: rotate foot
+                //calculate the ankle rot, before applying the IK
                 _EETargetRot = Quaternion.FromToRotation(hit.normal, rootUp);
                 _EEAnimRot = EE.rotation;
             }

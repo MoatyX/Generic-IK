@@ -9,11 +9,7 @@ namespace Generics.Dynamics
     {
         [Header("Interface")]
         public Animator SourceAnimator;
-        public float TimeTarget = 0.2f;
-
-        [Tooltip("This uses the LegType parameter inside each Leg object and auto build it")]
-        public bool AutoBuildChain = true;
-
+        public float HealHeight = 0.1f;
         public float RootAdjSpeed = 7;
         public LayerMask LayerMask = 0;
 
@@ -22,6 +18,7 @@ namespace Generics.Dynamics
         public HumanLeg Left;
 
         private Vector3 rootPos;
+        private float legLength;
 
         private void Start()
         {
@@ -44,11 +41,11 @@ namespace Generics.Dynamics
             Root = rigReader.Root.joint;
             rootPos = Root.position;
 
-            if (AutoBuildChain)
-            {
-                Right.AutoBuild(SourceAnimator);
-                Left.AutoBuild(SourceAnimator);
-            }
+            //auto build the chains
+            Right.AutoBuild(SourceAnimator);
+            Left.AutoBuild(SourceAnimator);
+
+            legLength = Mathf.Abs(Root.position.y - Right.LegChain.GetEndEffector().position.y);
         }
 
         private void LateUpdate()
@@ -66,17 +63,16 @@ namespace Generics.Dynamics
 
         private void ProcessHips()
         {
-            //TODO: better pelvis adj
             float yRight = Right.LegChain.GetIKTarget().y;
             float yLeft = Left.LegChain.GetIKTarget().y;
             float min = Mathf.Min(yRight, yLeft);
-            float max = Mathf.Max(yRight, yLeft);
-            float delta = max - min;
-            float extraDelta = Right.LegChain.GetEndEffector().position.y - Right.LegChain.GetIKTarget().y;
-            extraDelta = 0f;
+
+            float delta = min - Root.position.y;
+            Debug.Log(delta);
+            float target = Mathf.Clamp(delta, legLength, legLength - delta);
 
             rootPos.x = Root.position.x;
-            rootPos.y = Mathf.Lerp(rootPos.y, Root.position.y - (delta + extraDelta), Time.deltaTime * RootAdjSpeed);
+            rootPos.y = Mathf.Lerp(rootPos.y, target, Time.deltaTime * RootAdjSpeed);
             rootPos.z = Root.position.z;
 
             Root.position = rootPos;
@@ -91,17 +87,35 @@ namespace Generics.Dynamics
             Left.RotateFoot();
         }
 
+#if UNITY_EDITOR
+
+        /// <summary>
+        /// Debug and testing purposes
+        /// </summary>
         private void OnDrawGizmos()
         {
             if (Application.isPlaying == false) return;
-            
-            Gizmos.color = Color.green;
-            Vector3 ppos1 = Right.LegChain.GetIKTarget();
-            Vector3 ppos2 = Left.LegChain.GetIKTarget();
-            Gizmos.DrawWireSphere(ppos1, 0.06f);
-            Gizmos.DrawWireSphere(ppos2, 0.06f);
+
+            DrawDebugGizmos();
         }
 
+        private void DrawDebugGizmos()
+        {
+            Time.timeScale = Input.GetMouseButton(0) ? 0.2f : 1f;
 
+            Gizmos.color = Color.green;
+            Vector3 pp1 = Right.LegChain.GetIKTarget();
+            Vector3 pp2 = Left.LegChain.GetIKTarget();
+            Gizmos.DrawWireSphere(pp1, 0.06f);
+            Gizmos.DrawWireSphere(pp2, 0.06f);
+
+            Gizmos.color = Color.red;
+            Vector3 p1 = Right.LegChain.GetEndEffector().position;
+            Vector3 p2 = Left.LegChain.GetEndEffector().position;
+            Gizmos.DrawSphere(p1, 0.06f);
+            Gizmos.DrawSphere(p2, 0.06f);
+        }
+
+#endif
     }
 }
