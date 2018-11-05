@@ -17,8 +17,7 @@ namespace Generics.Dynamics
         public HumanLeg Right;
         public HumanLeg Left;
 
-        private Vector3 rootPos;
-        private float legLength;
+        private float rootOff;
 
         private void Start()
         {
@@ -39,13 +38,10 @@ namespace Generics.Dynamics
 
             RigReader rigReader = new RigReader(SourceAnimator);
             Root = rigReader.Root.joint;
-            rootPos = Root.position;
 
             //auto build the chains
             Right.AutoBuild(SourceAnimator);
             Left.AutoBuild(SourceAnimator);
-
-            legLength = Mathf.Abs(Root.position.y - Right.LegChain.GetEndEffector().position.y);
         }
 
         private void LateUpdate()
@@ -63,19 +59,20 @@ namespace Generics.Dynamics
 
         private void ProcessHips()
         {
-            float yRight = Right.LegChain.GetIKTarget().y;
-            float yLeft = Left.LegChain.GetIKTarget().y;
+            float yRight = Right.Chain.GetIKTarget().y;
+            float yRight2 = Right.Chain.GetEndEffector().position.y;
+            float yLeft = Left.Chain.GetIKTarget().y;
+            float yLeft2 = Left.Chain.GetEndEffector().position.y;
+
             float min = Mathf.Min(yRight, yLeft);
+            float min2 = Mathf.Min(yRight2, yLeft2);
 
-            float delta = min - Root.position.y;
-            Debug.Log(delta);
-            float target = Mathf.Clamp(delta, legLength, legLength - delta);
+            float target = min2 - min;
 
-            rootPos.x = Root.position.x;
-            rootPos.y = Mathf.Lerp(rootPos.y, target, Time.deltaTime * RootAdjSpeed);
-            rootPos.z = Root.position.z;
+            rootOff = Mathf.Lerp(rootOff, target, Time.deltaTime * RootAdjSpeed);
+            
 
-            Root.position = rootPos;
+            Root.position += Vector3.down * rootOff; 
         }
 
         private void Solve()
@@ -104,14 +101,14 @@ namespace Generics.Dynamics
             Time.timeScale = Input.GetMouseButton(0) ? 0.2f : 1f;
 
             Gizmos.color = Color.green;
-            Vector3 pp1 = Right.LegChain.GetIKTarget();
-            Vector3 pp2 = Left.LegChain.GetIKTarget();
+            Vector3 pp1 = Right.Chain.GetIKTarget();
+            Vector3 pp2 = Left.Chain.GetIKTarget();
             Gizmos.DrawWireSphere(pp1, 0.06f);
             Gizmos.DrawWireSphere(pp2, 0.06f);
 
             Gizmos.color = Color.red;
-            Vector3 p1 = Right.LegChain.GetEndEffector().position;
-            Vector3 p2 = Left.LegChain.GetEndEffector().position;
+            Vector3 p1 = Right.Chain.GetEndEffector().position;
+            Vector3 p2 = Left.Chain.GetEndEffector().position;
             Gizmos.DrawSphere(p1, 0.06f);
             Gizmos.DrawSphere(p2, 0.06f);
         }

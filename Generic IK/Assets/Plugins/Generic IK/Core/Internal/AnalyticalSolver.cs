@@ -84,7 +84,7 @@ namespace Generics.Dynamics
         /// <param name="leg"></param>
         public static void Process(HumanLeg leg)
         {
-            Process(leg.LegChain);
+            Process(leg.Chain);
         }
     }
 }

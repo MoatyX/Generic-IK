@@ -452,7 +452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &406466193
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -513,13 +513,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 406466192}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.2588194, y: -0, z: -0, w: 0.9659258}
   m_LocalPosition: {x: 0, y: 0.149, z: 0}
   m_LocalScale: {x: 1, y: 0.05, z: 1.5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -30.000002, y: 0, z: 0}
 --- !u!1001 &883371466
 Prefab:
   m_ObjectHideFlags: 0
@@ -533,7 +533,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.164
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0, type: 2}
       propertyPath: m_LocalPosition.z
@@ -873,7 +873,7 @@ Prefab:
     - target: {fileID: 114000013673731324, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
       propertyPath: debugMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 136000010632685792, guid: ca426e9659c1e75489179f7e497e6fa0,
         type: 2}
@@ -1109,8 +1109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
-  HealHeight: 0
-  AutoBuildChain: 1
+  HealHeight: 0.1
   RootAdjSpeed: 10
   LayerMask:
     serializedVersion: 2
@@ -1118,22 +1117,26 @@ MonoBehaviour:
   Root: {fileID: 0}
   Right:
     LegType: 4
-    LegChain:
+    Chain:
       Target: {fileID: 0}
-      Weight: 1
+      Weight: 0
       Iterations: 2
       Joints: []
     FootOffset: 0
-    MaxStep: 0.6
+    MaxStepHeight: 0.8
+    EaseOutPos: 10
+    EaseOutNormals: 3
   Left:
     LegType: 5
-    LegChain:
+    Chain:
       Target: {fileID: 0}
-      Weight: 1
+      Weight: 0
       Iterations: 2
       Joints: []
     FootOffset: 0
-    MaxStep: 0.6
+    MaxStepHeight: 0.8
+    EaseOutPos: 10
+    EaseOutNormals: 3
 --- !u!4 &1904943970 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0,

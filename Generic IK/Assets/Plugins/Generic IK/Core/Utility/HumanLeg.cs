@@ -20,13 +20,19 @@ namespace Generics.Dynamics
         [Header("General")]
         [Tooltip("Used only if Auto-building the chain is wished through the HumanLeg.AutoBuild() call")]
         public HumanLegs LegType;
-
-        public Core.Chain LegChain;
+        public Core.Chain Chain;
 
 
         [Header("Terrain Adjustment")]
         public float FootOffset = 0f;
-        public float MaxStepHeight = 0.6f;
+        public float MaxStepHeight = 0.8f;
+
+        //used to smooth out the motion when we cant find ground anymore
+        public float EaseOutPos = 10f;
+        public float EaseOutNormals = 3f;
+
+        private Vector3 normals;
+        private Vector3 IKPointOffset;
 
         private Quaternion _EEAnimRot;
         private Quaternion _EETargetRot;
@@ -50,19 +56,19 @@ namespace Generics.Dynamics
             {
                 case HumanLegs.RightLeg:
                     var tempR = rigReader.BuildChain(LegType);
-                    LegChain.Joints = tempR.Joints;
+                    Chain.Joints = tempR.Joints;
                     break;
                 case HumanLegs.LeftLeg:
                     var tempL = rigReader.BuildChain(LegType);
-                    LegChain.Joints = tempL.Joints;
+                    Chain.Joints = tempL.Joints;
                     break;
             }
 
-            LegChain.InitiateJoints();
-            LegChain.Weight = 1;
+            Chain.InitiateJoints();
+            Chain.Weight = 1;
 
-            _EEAnimRot = LegChain.GetEndEffector().rotation;
-            EE = LegChain.GetEndEffector();
+            _EEAnimRot = Chain.GetEndEffector().rotation;
+            EE = Chain.GetEndEffector();
         }
 
         /// <summary>
@@ -73,6 +79,7 @@ namespace Generics.Dynamics
         public void TerrainAdjustment(LayerMask mask, Transform root)
         {
             RaycastHit hit;
+            Vector3 rootUp = root.up;
             Ray ray = new Ray(EE.position, Vector3.down);
             bool intersect = Physics.Raycast(ray, out hit, MaxStepHeight, mask, QueryTriggerInteraction.Ignore);
 
@@ -84,8 +91,6 @@ namespace Generics.Dynamics
 #endif
             if (intersect)
             {
-                Vector3 rootUp = root.up;
-
                 float footHeight = root.position.y - EE.position.y;
                 float footFromGround = hit.point.y - root.position.y;
 
@@ -93,17 +98,20 @@ namespace Generics.Dynamics
                 float currentMaxOffset = Mathf.Clamp(MaxStepHeight - footHeight, 0f, MaxStepHeight);
                 float IK = Mathf.Clamp(offsetTarget, -currentMaxOffset, offsetTarget);
 
-                Vector3 IKPoint = EE.position + rootUp * IK;
-                LegChain.SetIKTarget(IKPoint);
-
-                //calculate the ankle rot, before applying the IK
-                _EETargetRot = Quaternion.FromToRotation(hit.normal, rootUp);
-                _EEAnimRot = EE.rotation;
+                IKPointOffset = rootUp * IK;
+                normals = Vector3.Lerp(normals, hit.normal, Time.deltaTime * EaseOutNormals);
             }
             else
             {
-                LegChain.SetIKTarget(EE.position);
+                IKPointOffset = Vector3.Lerp(IKPointOffset, Vector3.zero, Time.deltaTime * EaseOutPos);
+                normals = Vector3.Lerp(normals, rootUp, Time.deltaTime * EaseOutNormals);
             }
+
+            Chain.SetIKTarget(EE.position + IKPointOffset);
+
+            //calculate the ankle rot, before applying the IK
+            _EETargetRot = Quaternion.FromToRotation(normals, rootUp);
+            _EEAnimRot = EE.rotation;
         }
 
 
