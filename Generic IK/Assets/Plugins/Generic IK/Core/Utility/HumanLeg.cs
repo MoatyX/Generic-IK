@@ -20,6 +20,7 @@ namespace Generics.Dynamics
         [Header("General")]
         [Tooltip("Used only if Auto-building the chain is wished through the HumanLeg.AutoBuild() call")]
         public HumanLegs LegType;
+
         public Core.Chain Chain;
 
 
@@ -29,7 +30,7 @@ namespace Generics.Dynamics
 
         //used to smooth out the motion when we cant find ground anymore
         public float EaseOutPos = 10f;
-        public float EaseOutNormals = 3f;
+        public float EaseOutNormals = 10f;
 
         private Vector3 normals;
         private Vector3 IKPointOffset;
@@ -37,6 +38,8 @@ namespace Generics.Dynamics
         private Quaternion _EEAnimRot;
         private Quaternion _EETargetRot;
         private Transform EE;
+
+        private bool _init;
 
         /// <summary>
         /// Automatically build the chain
@@ -64,11 +67,24 @@ namespace Generics.Dynamics
                     break;
             }
 
+            Init();
+        }
+
+        private void Init()
+        {
+            if (Chain.Joints == null || Chain.Joints.Count != 3)
+            {
+                Debug.LogError("Fetal !: the chain joints are undefined");
+                return;
+            }
+
             Chain.InitiateJoints();
             Chain.Weight = 1;
 
             _EEAnimRot = Chain.GetEndEffector().rotation;
             EE = Chain.GetEndEffector();
+
+            _init = true;
         }
 
         /// <summary>
@@ -78,6 +94,12 @@ namespace Generics.Dynamics
         /// </summary>
         public void TerrainAdjustment(LayerMask mask, Transform root)
         {
+            if (_init == false)
+            {
+                Init();
+                return;
+            }
+
             RaycastHit hit;
             Vector3 rootUp = root.up;
             Ray ray = new Ray(EE.position, Vector3.down);
@@ -86,7 +108,7 @@ namespace Generics.Dynamics
 #if UNITY_EDITOR
             if (intersect)
             {
-                Debug.DrawLine(ray.origin, hit.point, Color.green);   //enable for debug purposes
+                Debug.DrawLine(ray.origin, hit.point, Color.green); //enable for debug purposes
             }
 #endif
             if (intersect)
@@ -110,7 +132,7 @@ namespace Generics.Dynamics
             Chain.SetIKTarget(EE.position + IKPointOffset);
 
             //calculate the ankle rot, before applying the IK
-            _EETargetRot = Quaternion.FromToRotation(normals, rootUp);
+            _EETargetRot = GenericMath.RotateFromTo(normals, rootUp);
             _EEAnimRot = EE.rotation;
         }
 
@@ -118,9 +140,11 @@ namespace Generics.Dynamics
         /// <summary>
         /// Rotate the ankle
         /// </summary>
-        public void RotateFoot()
+        public void RotateAnkle()
         {
-            EE.rotation = Quaternion.Inverse(_EETargetRot) * _EEAnimRot;
+            Quaternion rot = GenericMath.ApplyQuaternion(_EETargetRot, _EEAnimRot);
+            Quaternion targetRot = Quaternion.Lerp(EE.rotation, rot, Chain.Weight);
+            EE.rotation = targetRot;
         }
     }
 }

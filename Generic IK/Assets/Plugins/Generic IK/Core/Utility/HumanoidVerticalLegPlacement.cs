@@ -9,11 +9,11 @@ namespace Generics.Dynamics
     {
         [Header("Interface")]
         public Animator SourceAnimator;
-        public float HealHeight = 0.1f;
         public float RootAdjSpeed = 7;
+        public Transform Root;
         public LayerMask LayerMask = 0;
 
-        public Transform Root;
+        [Header("Legs")]
         public HumanLeg Right;
         public HumanLeg Left;
 
@@ -24,24 +24,11 @@ namespace Generics.Dynamics
             if (SourceAnimator == null) SourceAnimator = GetComponent<Animator>();
             if (SourceAnimator == null)
             {
-                Debug.LogError("No Source Animator was found. it is an important step to initialization");
-                enabled = false;
+                Debug.LogError("No Source Animator was found. it is an important step to automatic initialization");
                 return;
             }
 
-            if (SourceAnimator.isHuman == false)
-            {
-                Debug.LogError(this + " works only for humanoid characters");
-                enabled = false;
-                return;
-            }
-
-            RigReader rigReader = new RigReader(SourceAnimator);
-            Root = rigReader.Root.joint;
-
-            //auto build the chains
-            Right.AutoBuild(SourceAnimator);
-            Left.AutoBuild(SourceAnimator);
+            AutomaticInit();
         }
 
         private void LateUpdate()
@@ -51,12 +38,39 @@ namespace Generics.Dynamics
             Solve();
         }
 
+        /// <summary>
+        /// Automatically Initialise the references
+        /// </summary>
+        private void AutomaticInit()
+        {
+            if (SourceAnimator.isHuman == false)
+            {
+                Debug.LogError(this + " works only for humanoid characters");
+                enabled = false;
+                return;
+            }
+
+            RigReader rigReader = new RigReader(SourceAnimator);
+
+            if (Root == null) Root = rigReader.Root.joint;
+
+            //auto build the chains
+            Right.AutoBuild(SourceAnimator);
+            Left.AutoBuild(SourceAnimator);
+        }
+
+        /// <summary>
+        /// Process Legs
+        /// </summary>
         private void ProcessLegs()
         {
             Right.TerrainAdjustment(LayerMask, transform);
             Left.TerrainAdjustment(LayerMask, transform);
         }
 
+        /// <summary>
+        /// Adjust Hips
+        /// </summary>
         private void ProcessHips()
         {
             float yRight = Right.Chain.GetIKTarget().y;
@@ -70,9 +84,9 @@ namespace Generics.Dynamics
             float target = min2 - min;
 
             rootOff = Mathf.Lerp(rootOff, target, Time.deltaTime * RootAdjSpeed);
-            
 
-            Root.position += Vector3.down * rootOff; 
+            Vector3 downDir = -Root.up;     //can be adjusted to specific spaces (world/local space, down dir) (curSpace = Local)
+            Root.position += downDir * rootOff;
         }
 
         private void Solve()
@@ -80,8 +94,8 @@ namespace Generics.Dynamics
             AnalyticalSolver.Process(Right);
             AnalyticalSolver.Process(Left);
 
-            Right.RotateFoot();
-            Left.RotateFoot();
+            Right.RotateAnkle();
+            Left.RotateAnkle();
         }
 
 #if UNITY_EDITOR
@@ -93,7 +107,7 @@ namespace Generics.Dynamics
         {
             if (Application.isPlaying == false) return;
 
-            DrawDebugGizmos();
+           // DrawDebugGizmos(); Enable for debug purposes
         }
 
         private void DrawDebugGizmos()

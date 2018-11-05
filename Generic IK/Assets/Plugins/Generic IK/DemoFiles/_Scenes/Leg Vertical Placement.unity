@@ -1109,12 +1109,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SourceAnimator: {fileID: 0}
-  HealHeight: 0.1
   RootAdjSpeed: 10
+  Root: {fileID: 0}
   LayerMask:
     serializedVersion: 2
     m_Bits: 1
-  Root: {fileID: 0}
   Right:
     LegType: 4
     Chain:
@@ -1125,7 +1124,7 @@ MonoBehaviour:
     FootOffset: 0
     MaxStepHeight: 0.8
     EaseOutPos: 10
-    EaseOutNormals: 3
+    EaseOutNormals: 10
   Left:
     LegType: 5
     Chain:
@@ -1136,7 +1135,7 @@ MonoBehaviour:
     FootOffset: 0
     MaxStepHeight: 0.8
     EaseOutPos: 10
-    EaseOutNormals: 3
+    EaseOutNormals: 10
 --- !u!4 &1904943970 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000014092894954, guid: ca426e9659c1e75489179f7e497e6fa0,
